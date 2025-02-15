@@ -155,5 +155,117 @@ class _HomeState extends State<Home> {
 }
 
 
+Question 02
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(ElectricityBillApp());
+}
+
+class ElectricityBillApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: BillCalculatorScreen(),
+    );
+  }
+}
+
+class BillCalculatorScreen extends StatefulWidget {
+  @override
+  _BillCalculatorScreenState createState() => _BillCalculatorScreenState();
+}
+
+class _BillCalculatorScreenState extends State<BillCalculatorScreen> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController monthController = TextEditingController();
+  final TextEditingController accountController = TextEditingController();
+  final TextEditingController unitsController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+
+  String billMessage = "";
+
+  void calculateBill() {
+    String name = nameController.text;
+    String month = monthController.text;
+    String account = accountController.text;
+    String phone = phoneController.text;
+    
+    if (name.isEmpty || month.isEmpty || account.isEmpty || phone.isEmpty || unitsController.text.isEmpty) {
+      setState(() {
+        billMessage = "Please fill all fields";
+      });
+      return;
+    }
+
+    int units = int.tryParse(unitsController.text) ?? 0;
+    double totalBill = 0;
+    double fixedCharge = 0;
+
+    if (units <= 30) {
+      totalBill = units * 30.0;
+      fixedCharge = 400.0;
+    } else if (units <= 60) {
+      totalBill = (30 * 30.0) + ((units - 30) * 37.0);
+      fixedCharge = 550.0;
+    } else if (units <= 90) {
+      totalBill = (30 * 30.0) + (30 * 37.0) + ((units - 60) * 42.0);
+      fixedCharge = 750.0;
+    } else if (units <= 120) {
+      totalBill = (30 * 30.0) + (30 * 37.0) + (30 * 42.0) + ((units - 90) * 50.0);
+      fixedCharge = 1500.0;
+    } else if (units <= 180) {
+      totalBill = (30 * 30.0) + (30 * 37.0) + (30 * 42.0) + (30 * 50.0) + ((units - 120) * 75.0);
+      fixedCharge = 1500.0;
+    } else {
+      totalBill = (30 * 30.0) + (30 * 37.0) + (30 * 42.0) + (30 * 50.0) + (60 * 75.0) + ((units - 180) * 85.0);
+      fixedCharge = 2000.0;
+    }
+    totalBill += fixedCharge;
+
+    setState(() {
+      billMessage = "Hi $name, your $month bill is Rs. ${totalBill.toStringAsFixed(2)}";
+    });
+  }
+
+  void clearFields() {
+    nameController.clear();
+    monthController.clear();
+    accountController.clear();
+    unitsController.clear();
+    phoneController.clear();
+    setState(() {
+      billMessage = "";
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("E-Bill Calculator")),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(controller: nameController, decoration: InputDecoration(labelText: "Name")),
+            TextField(controller: monthController, decoration: InputDecoration(labelText: "Month")),
+            TextField(controller: accountController, decoration: InputDecoration(labelText: "Account Number")),
+            TextField(controller: unitsController, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: "Consumption Units")),
+            TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: InputDecoration(labelText: "Phone Number")),
+            SizedBox(height: 20),
+            ElevatedButton(onPressed: calculateBill, child: Text("Calculate Bill")),
+            ElevatedButton(onPressed: clearFields, child: Text("Clear All")),
+            SizedBox(height: 20),
+            Text(billMessage, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 
 
