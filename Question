@@ -608,3 +608,162 @@ public class Students {
         this.stmethod = stmethod;
     }
 }
+
+
+Question 03
+
+<--- pubspec.yaml --->
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: latest_version
+  firebase_auth: latest_version
+
+<--- CMD code --->
+flutter pub get
+
+<***main.dart***>
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'signup_page.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SignupPage(),
+    );
+  }
+}
+
+<*** signup_page.dart ***>
+
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'homepage.dart';
+
+class SignupPage extends StatefulWidget {
+  @override
+  _SignupPageState createState() => _SignupPageState();
+}
+
+class _SignupPageState extends State<SignupPage> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController regNoController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+
+  void _signup() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text.trim());
+
+        if (userCredential.user != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Account created successfully!")),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${e.toString()}")),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("SignUp Page")),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              Text("Welcome to Student Sign Up", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: "Name with initials"),
+                validator: (value) => value!.isEmpty ? "Required field" : null,
+              ),
+              TextFormField(
+                controller: regNoController,
+                decoration: InputDecoration(labelText: "Registration Number"),
+                validator: (value) => value!.isEmpty ? "Required field" : null,
+              ),
+              TextFormField(
+                controller: emailController,
+                decoration: InputDecoration(labelText: "Email"),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) =>
+                    value!.isEmpty ? "Required field" : null,
+              ),
+              TextFormField(
+                controller: passwordController,
+                decoration: InputDecoration(labelText: "Password"),
+                obscureText: true,
+                validator: (value) =>
+                    value!.isEmpty ? "Required field" : null,
+              ),
+              TextFormField(
+                controller: confirmPasswordController,
+                decoration: InputDecoration(labelText: "Confirm Password"),
+                obscureText: true,
+                validator: (value) {
+                  if (value!.isEmpty) return "Required field";
+                  if (value != passwordController.text) return "Passwords do not match";
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _signup,
+                child: Text("Sign Up"),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+<*** homepage.dart ***>
+import 'package:flutter/material.dart';
+
+class HomePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Homepage")),
+      body: Center(
+        child: Text(
+          "Welcome to Homepage!",
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+
